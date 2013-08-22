@@ -1,8 +1,9 @@
 require "family_connect/version"
+require "json"
 
 module FamilyConnect
   class Client
-    attr_accessor :dev_key, :redirect_uri, :base_env, :env
+    attr_accessor :dev_key, :redirect_uri, :base_env
 
     SANDBOX = 'sandbox'.freeze
     STAGING = 'identbeta'.freeze
@@ -22,6 +23,26 @@ module FamilyConnect
       elsif (@env == 'production')
         @base_env = PRODUCTION
       end
+    end
+
+    def env
+      @env
+    end
+
+    def authorize_uri
+      "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&client_id=#{@dev_key}&redirect_uri=#{@redirect_uri}"
+    end
+
+    def get_access_token code
+      response = Typhoeus::Request.new(
+          "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/token",
+          method: :post,
+          body: "",
+          params: { grant_type: "authorization_code", code: code, client_id: @dev_key },
+          headers: { Accept: "text/html" }
+      ).run
+
+      JSON.parse(response.body)
     end
   end
 end
