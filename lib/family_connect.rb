@@ -3,7 +3,7 @@ require "json"
 
 module FamilyConnect
   class Client
-    attr_accessor :dev_key, :redirect_uri, :base_env
+    attr_accessor :dev_key, :redirect_uri, :base_env, :discovery
 
     SANDBOX = 'sandbox'.freeze
     STAGING = 'identbeta'.freeze
@@ -29,20 +29,62 @@ module FamilyConnect
       @env
     end
 
-    def authorize_uri
-      "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&client_id=#{@dev_key}&redirect_uri=#{@redirect_uri}"
+    def discover
+      url = "https://#{@base_env}.familysearch.org/.well-known/app-meta.json"
+      params = {}
+      headers = {}
+      @discovery ||= makeRequest(:url => url, :params => params, :headers => headers)
     end
 
-    def get_access_token code
-      response = Typhoeus::Request.new(
-          "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/token",
-          method: :post,
-          body: "",
-          params: { grant_type: "authorization_code", code: code, client_id: @dev_key },
-          headers: { Accept: "text/html" }
-      ).run
+    #def authorize_uri
+    #  "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&client_id=#{@dev_key}&redirect_uri=#{@redirect_uri}"
+    #end
+    #
+    #def get_access_token code
+    #  response = Typhoeus::Request.new(
+    #      "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/token",
+    #      method: :post,
+    #      body: "",
+    #      params: { grant_type: "authorization_code", code: code, client_id: @dev_key },
+    #      headers: { Accept: "text/html" }
+    #  ).run
+    #
+    #  JSON.parse(response.body)
+    #end
 
-      JSON.parse(response.body)
+    private
+    def makeRequest(parameters)
+      method = parameters[:method] || :get
+      url = parameters[:url]
+      params = parameters[:params] || nil
+      headers = parameters[:headers] || nil
+      body = parameters[:body] || nil
+      response = nil
+      #begin
+      #  Timeout::timeout(ApiConnection::TIMEOUT) do
+          response = Typhoeus::Request.new(
+              url,
+              :method  => method,
+              :body    => body,
+              :params  => params,
+              :headers => headers
+          ).run
+        #end
+      #rescue Timeout::Error
+      #  return {:error => 'timeout'}
+      #end
+      #
+      #unless [200, 201].include? response.code
+      #  return {:error => 'response_code', :error_code => response.code, :error_message => response.body }
+      #end
+      #
+      #begin
+      #  JSON.parse response.body, :symbolize_names => true
+        JSON.parse response.body
+      #rescue JSON::JSONError => ex
+      #  return {:error => 'bad_json', :error_message => ex.message }
+      #end
+
     end
   end
 end
