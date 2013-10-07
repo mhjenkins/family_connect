@@ -22,4 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "typhoeus"
   spec.add_development_dependency "json"
+  spec.add_development_dependency "addressable"
 end

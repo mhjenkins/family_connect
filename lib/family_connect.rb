@@ -1,4 +1,6 @@
 require "family_connect/version"
+require 'family_connect/template'
+require 'family_connect/error'
 require "json"
 
 module FamilyConnect
@@ -52,7 +54,7 @@ module FamilyConnect
     #  JSON.parse(response.body)
     #end
 
-    private
+    #private
     def makeRequest(parameters)
       method = parameters[:method] || :get
       url = parameters[:url]
