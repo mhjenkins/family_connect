@@ -5,7 +5,7 @@ require "json"
 
 module FamilyConnect
   class Client
-    attr_accessor :dev_key, :redirect_uri, :base_env, :discovery
+    attr_accessor :dev_key, :redirect_uri, :base_env, :discovery, :access_token
 
     SANDBOX = 'sandbox'.freeze
     STAGING = 'identbeta'.freeze

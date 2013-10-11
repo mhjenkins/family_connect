@@ -26,6 +26,12 @@ describe FamilyConnect::Client do
     discover['links']["http://oauth.net/core/2.0/endpoint/authorize"]['href'].should == "https://sandbox.familysearch.org/cis-web/oauth2/v3/authorization"
   end
 
+  it 'should get and set access_token' do
+    family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+    family_search.access_token = '123'
+    family_search.access_token.should == '123'
+  end
+
 
   #it 'should return correct redirect url' do
   #  family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})

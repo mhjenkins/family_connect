@@ -2,6 +2,7 @@ require "addressable/template"
 module FamilyConnect
   class Template
     attr_accessor :client, :template, :type, :accept, :allow, :title
+
     def initialize args
       unless args.has_key? :template
         raise FamilyConnect::Error::TemplateNotFound
@@ -24,7 +25,7 @@ module FamilyConnect
       #template_values = validate_values(template_values)
       t = Addressable::Template.new(@template)
       #url = t.expand(template_values).to_s
-      @client.makeRequest({:url =>t.to_s})
+      @client.makeRequest({:url => t.to_s})
     end
 
     private
@@ -33,7 +34,7 @@ module FamilyConnect
       params = validate_values(args[:params])
       t = Addressable::Template.new(@template)
       url = t.expand(params).to_s
-      @client.makeRequest({:url =>url.to_s, :method => args[:method]})
+      @client.makeRequest({:url => url.to_s, :method => args[:method]})
     end
 
     def validate_method method
@@ -44,7 +45,7 @@ module FamilyConnect
       template_value_array = []
       values = @template.scan(/\{([^}]*)\}/).flatten
       values.each do |value|
-        value.gsub!('?','')
+        value.gsub!('?', '')
         template_value_array += value.split(',')
       end
       template_value_array
@@ -53,13 +54,15 @@ module FamilyConnect
     def validate_values(template_values)
       vals = value_array
       stringified_hash = {}
-      template_values.each do |k,v|
+      template_values[:access_token] = @client.access_token
+      template_values.each do |k, v|
         stringified_hash[k.to_s] = v
         unless vals.include?(k.to_s)
           raise FamilyConnect::Error::TemplateValueNotFound
         end
       end
 
+      raise FamilyConnect::Error::TemplateValueMissing if template_values.keys.map { |k| k.to_s.downcase } != vals
       stringified_hash
     end
   end

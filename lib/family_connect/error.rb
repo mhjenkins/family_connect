@@ -22,5 +22,8 @@ module FamilyConnect
     # Raised if a parameter is passed to a get (or other method call) on a FamilySearch::URLTemplate object
     # that doesn't contain that parameter in the template string.
     class TemplateValueNotFound < StandardError; end
+
+    #Raised if a parameter that is required for a template is not sent
+    class TemplateValueMissing < StandardError; end
   end
 end

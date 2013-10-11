@@ -5,6 +5,7 @@ describe FamilyConnect::Template do
   before do
     @discovery = JSON.parse(File.read(File.join('spec/sampledata/discovery.response')))
     @client = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+    @client.access_token = '123'
   end
 
   describe 'initalize' do
@@ -32,7 +33,7 @@ describe FamilyConnect::Template do
       Typhoeus::Request.any_instance.stub(:run){Typhoeus::Response.new({:code => 200, :body => '{"access_token":"123456789"}'})}
       hash = @discovery['links']['person-change-summary-template']
       template = FamilyConnect::Template.new({:client => @client,:template => hash})
-      response = template.get
+      response = template.get({:pid => '1'})
       response["access_token"].should == "123456789"
     end
 
@@ -49,7 +50,11 @@ describe FamilyConnect::Template do
       expect {template.get ({:bob => 'dude'})}.to raise_error(FamilyConnect::Error::TemplateValueNotFound)
     end
 
-    it 'should raise an error if the required values are not given'
+    it 'should raise an error if the required values are not given'do
+      hash = @discovery['links']['person-change-summary-template']
+      template = FamilyConnect::Template.new({:client => @client,:template => hash})
+      expect {template.get ({})}.to raise_error(FamilyConnect::Error::TemplateValueMissing)
+    end
   end
 
   describe 'post'do
