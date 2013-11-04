@@ -35,7 +35,7 @@ module FamilyConnect
       url = "https://#{@base_env}.familysearch.org/.well-known/app-meta.json"
       params = {}
       headers = {}
-      @discovery ||= makeRequest(:url => url, :params => params, :headers => headers)
+      @discovery ||= make_request(:url => url, :params => params, :headers => headers)
     end
 
     #def authorize_uri
@@ -55,7 +55,7 @@ module FamilyConnect
     #end
 
     #private
-    def makeRequest(parameters)
+    def make_request(parameters)
       method = parameters[:method] || :get
       url = parameters[:url]
       params = parameters[:params] || nil
