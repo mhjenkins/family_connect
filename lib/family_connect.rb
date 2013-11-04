@@ -38,6 +38,12 @@ module FamilyConnect
       @discovery ||= makeRequest(:url => url, :params => params, :headers => headers)
     end
 
+    def template t_name
+      self.discover
+      template = @discovery['links'][t_name] || @discovery['links'][t_name+'-template'] || @discovery['links'][t_name+'-query']
+      FamilyConnect::Template.new({:client => self,:template => template})
+    end
+
     #def authorize_uri
     #  "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&client_id=#{@dev_key}&redirect_uri=#{@redirect_uri}"
     #end
