@@ -4,7 +4,7 @@ module FamilyConnect
     attr_accessor :client, :template, :type, :accept, :allow, :title
 
     def initialize args
-      unless args.has_key? :template
+      if args[:template].nil?
         raise FamilyConnect::Error::TemplateNotFound
       end
       @client = args[:client]

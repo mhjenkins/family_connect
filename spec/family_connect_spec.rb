@@ -32,6 +32,41 @@ describe FamilyConnect::Client do
     family_search.access_token.should == '123'
   end
 
+  describe '#template' do
+    before do
+      discovery = File.read(File.join('spec/sampledata/discovery.response'))
+      response = Typhoeus::Response.new(code: 200, body: discovery)
+      Typhoeus.stub(/well-known\/app-meta/).and_return(response)
+    end
+
+    it 'should find a template from the discover and return a template object' do
+      family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+      template = family_search.template('person-restore-template')
+      template.should be_instance_of(FamilyConnect::Template)
+      template.title.should == 'Restore'
+    end
+
+    it 'should raise an error if the template is not found' do
+      family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+      expect {family_search.template('foo-template')}.to raise_error(FamilyConnect::Error::TemplateNotFound)
+    end
+
+    it 'should find template without -template' do
+      family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+      template = family_search.template('person-restore')
+      template.should be_instance_of(FamilyConnect::Template)
+      template.title.should == 'Restore'
+    end
+
+    it 'should find template without -query' do
+      family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+      template = family_search.template('ancestry')
+      template.should be_instance_of(FamilyConnect::Template)
+      template.title.should == 'Ancestry'
+    end
+
+  end
+
 
   #it 'should return correct redirect url' do
   #  family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
