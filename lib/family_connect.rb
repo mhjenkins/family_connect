@@ -31,6 +31,11 @@ module FamilyConnect
       @env
     end
 
+    def authorize_url
+      self.discover
+      @discovery['links']["http://oauth.net/core/2.0/endpoint/authorize"]["href"]
+    end
+
     def discover
       url = "https://#{@base_env}.familysearch.org/.well-known/app-meta.json"
       params = {}

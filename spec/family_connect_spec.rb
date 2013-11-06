@@ -2,6 +2,12 @@ require 'spec_helper'
 require 'typhoeus'
 
 describe FamilyConnect::Client do
+  before do
+    discovery = File.read(File.join('spec/sampledata/discovery.response'))
+    response = Typhoeus::Response.new(code: 200, body: discovery)
+    Typhoeus.stub(/well-known\/app-meta/).and_return(response)
+  end
+
   it 'should set defaults' do
     family_connect_client = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
     family_connect_client.dev_key.should == '123'
@@ -33,11 +39,7 @@ describe FamilyConnect::Client do
   end
 
   describe '#template' do
-    before do
-      discovery = File.read(File.join('spec/sampledata/discovery.response'))
-      response = Typhoeus::Response.new(code: 200, body: discovery)
-      Typhoeus.stub(/well-known\/app-meta/).and_return(response)
-    end
+
 
     it 'should find a template from the discover and return a template object' do
       family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
@@ -67,17 +69,20 @@ describe FamilyConnect::Client do
 
   end
 
+  describe '#oath' do
+    it 'should return the authorization uri' do
+      family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+      family_search.authorize_url.should == "https://sandbox.familysearch.org/cis-web/oauth2/v3/authorization"
+    end
 
-  #it 'should return correct redirect url' do
-  #  family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
-  #  family_search.authorize_uri.should == "https://sandbox.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&client_id=#{family_search.dev_key}&redirect_uri=#{family_search.redirect_uri}"
-  #
-  #  family_search.env = 'staging'
-  #  family_search.authorize_uri.should == "https://identbeta.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&client_id=#{family_search.dev_key}&redirect_uri=#{family_search.redirect_uri}"
-  #
-  #  family_search.env = 'production'
-  #  family_search.authorize_uri.should == "https://ident.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&client_id=#{family_search.dev_key}&redirect_uri=#{family_search.redirect_uri}"
-  #end
+    it 'should get oath token'
+
+    it 'should raise an exception if no code is sent for oath token'
+
+    it 'should handle error from bad oath token'
+  end
+
+
   #
   #it 'should get access token' do
   #  #TO_DO test to mmake sure it is calling the right url etc... not sure how to do this just yet
