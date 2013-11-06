@@ -58,7 +58,7 @@ describe FamilyConnect::Template do
   end
 
   describe 'post'do
-    it 'should return response' do
+    xit 'should return response' do
       Typhoeus::Request.any_instance.stub(:run){Typhoeus::Response.new({:code => 200, :body => '{"access_token":"123456789"}'})}
       hash = @discovery['links']['person-restore-template']
       template = FamilyConnect::Template.new({:client => @client,:template => hash})
@@ -66,7 +66,7 @@ describe FamilyConnect::Template do
       response["access_token"].should == "123456789"
     end
 
-    it 'should raise an error if get is not allowed' do
+    it 'should raise an error if post is not allowed' do
       hash = @discovery['links']['person-change-summary-template']
       template = FamilyConnect::Template.new({:client => @client,:template => hash})
       expect {template.post }.to raise_error(FamilyConnect::Error::MethodNotAllowed)

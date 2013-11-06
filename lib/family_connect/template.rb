@@ -23,9 +23,9 @@ module FamilyConnect
     def post args={}
       raise FamilyConnect::Error::MethodNotAllowed unless validate_method "POST"
       #template_values = validate_values(template_values)
-      t = Addressable::Template.new(@template)
+      #t = Addressable::Template.new(@template)
       #url = t.expand(template_values).to_s
-      @client.makeRequest({:url => t.to_s})
+      #@client.make_request({:url => t.to_s})
     end
 
     private
@@ -34,7 +34,7 @@ module FamilyConnect
       params = validate_values(args[:params])
       t = Addressable::Template.new(@template)
       url = t.expand(params).to_s
-      @client.makeRequest({:url => url.to_s, :method => args[:method]})
+      @client.make_request({:url => url.to_s, :method => args[:method]})
     end
 
     def validate_method method
