@@ -36,6 +36,16 @@ module FamilyConnect
       @discovery['links']["http://oauth.net/core/2.0/endpoint/authorize"]["href"]
     end
 
+    def get_token code
+      self.discover
+      token_url =  @discovery['links']["http://oauth.net/core/2.0/endpoint/token"]["href"]
+      params = {grant_type: "authorization_code", code: code, client_id: @dev_key }
+      headers = {Accept: "text/html"}
+      response = make_request(:url => token_url, :method => :post, :params => params, :headers => headers)
+      @access_token = response["access_token"]
+      response
+    end
+
     def discover
       url = "https://#{@base_env}.familysearch.org/.well-known/app-meta.json"
       params = {}
@@ -48,22 +58,6 @@ module FamilyConnect
       template = @discovery['links'][t_name] || @discovery['links'][t_name+'-template'] || @discovery['links'][t_name+'-query']
       FamilyConnect::Template.new({:client => self,:template => template})
     end
-
-    #def authorize_uri
-    #  "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&client_id=#{@dev_key}&redirect_uri=#{@redirect_uri}"
-    #end
-    #
-    #def get_access_token code
-    #  response = Typhoeus::Request.new(
-    #      "https://#{@base_env}.familysearch.org/cis-web/oauth2/v3/token",
-    #      method: :post,
-    #      body: "",
-    #      params: { grant_type: "authorization_code", code: code, client_id: @dev_key },
-    #      headers: { Accept: "text/html" }
-    #  ).run
-    #
-    #  JSON.parse(response.body)
-    #end
 
     #private
     def make_request(parameters)

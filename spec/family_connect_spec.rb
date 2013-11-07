@@ -72,14 +72,26 @@ describe FamilyConnect::Client do
   describe '#oath' do
     it 'should return the authorization uri' do
       family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
-      family_search.authorize_url.should == "https://sandbox.familysearch.org/cis-web/oauth2/v3/authorization"
+      family_search.authorize_url.should == family_search.discovery['links']["http://oauth.net/core/2.0/endpoint/authorize"]["href"]
     end
 
-    it 'should get oath token'
+    it 'should get oath token' do
+      response = Typhoeus::Response.new(code: 200, body: '{"access_token":"123456789"}')
+      Typhoeus.stub(/oauth2\/v3\/token/).and_return(response)
+      family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+      token = family_search.get_token '1458-101412255-74501275-11588-1107268821-10985-2557792193-124-79-53-97-124-8636-32'
+      token.should == {"access_token" => "123456789"}
+      family_search.access_token.should == "123456789"
+    end
 
-    it 'should raise an exception if no code is sent for oath token'
-
-    it 'should handle error from bad oath token'
+    it 'should handle error from bad oath token' do
+      response = Typhoeus::Response.new(code: 200, body: '{"error_description" : "Client not found. [ clientId: 123 ].", "error" : "invalid_grant"}')
+      Typhoeus.stub(/oauth2\/v3\/token/).and_return(response)
+      family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+      token = family_search.get_token '1458-101412255-74501275-11588-1107268821-10985-2557792193-124-79-53-97-124-8636'
+      token.should == {"error_description"=>"Client not found. [ clientId: 123 ].", "error"=>"invalid_grant"}
+      family_search.access_token.should be_nil
+    end
   end
 
 
