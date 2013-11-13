@@ -38,9 +38,6 @@ describe FamilyConnect::Client do
     family_search.access_token.should == '123'
   end
 
-  xit 'should delete an access_token' do
-
-  end
 
   it 'should get current user' do
     current_user = '{"users" : [{"id" : "cis.MMM.RX9", "links" : {"self" : {"href" : "https://familysearch.org/platform/users/current"}}, "contactName" : "Pete Townsend", "fullName" : "Pete Townsend", "email" : "peter@acme.org", "treeUserId" : "PXRQ-FMXT"}]}'
@@ -49,6 +46,14 @@ describe FamilyConnect::Client do
     family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
     result = family_search.get_current_user 'access cod'
     result.should == JSON.parse(current_user)
+  end
+
+  it 'should throw exception if access code is nil' do
+    current_user = '{"users" : [{"id" : "cis.MMM.RX9", "links" : {"self" : {"href" : "https://familysearch.org/platform/users/current"}}, "contactName" : "Pete Townsend", "fullName" : "Pete Townsend", "email" : "peter@acme.org", "treeUserId" : "PXRQ-FMXT"}]}'
+    response = Typhoeus::Response.new(code: 200, body: current_user)
+    Typhoeus.stub(/familysearch.org\/platform\/users\/current/).and_return(response)
+    family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+    expect {family_search.get_current_user nil}.to raise_error(FamilyConnect::Error::BadAccessToken)
   end
 
   describe '#template' do
@@ -105,6 +110,18 @@ describe FamilyConnect::Client do
       token.should == {"error_description"=>"Client not found. [ clientId: 123 ].", "error"=>"invalid_grant"}
       family_search.access_token.should be_nil
     end
+
+    it 'should delete an access_token' do
+      response = Typhoeus::Response.new(code: 204, body: '')
+      Typhoeus.stub(/oauth2\/v3\/token/).and_return(response)
+      family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+      family_search.access_token = "123456789"
+      family_search.access_token.should == "123456789"
+      token = family_search.delete_token '2YoTnFdFEjr1zCsicMWpAA'
+      token.should == {"access_token" => nil}
+      family_search.access_token.should be_nil
+    end
+
   end
 
 

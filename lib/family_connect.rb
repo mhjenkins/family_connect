@@ -46,7 +46,23 @@ module FamilyConnect
       response
     end
 
+    def delete_token token
+      self.discover
+      token_url =  @discovery['links']["http://oauth.net/core/2.0/endpoint/token"]["href"]+"?access_token=#{token}"
+      params = {}
+      headers = {}
+      response = make_request(:url => token_url, :method => :delete, :params => params, :headers => headers)
+      if(response['response'] == 204)
+        @access_token = nil
+        return {'access_token' => nil}
+      end
+
+      response
+    end
+
     def get_current_user access_token
+      raise FamilyConnect::Error::BadAccessToken unless access_token
+
       self.discover
       current_user_url =  @discovery['links']["current-user"]["href"]
       params = {}
@@ -92,6 +108,9 @@ module FamilyConnect
       #unless [200, 201].include? response.code
       #  return {:error => 'response_code', :error_code => response.code, :error_message => response.body }
       #end
+      if [204].include? response.code
+        return {'response' => 204, 'body' => nil}
+      end
       #
       #begin
       #  JSON.parse response.body, :symbolize_names => true

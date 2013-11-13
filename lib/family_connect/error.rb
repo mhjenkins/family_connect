@@ -25,5 +25,8 @@ module FamilyConnect
 
     #Raised if a parameter that is required for a template is not sent
     class TemplateValueMissing < StandardError; end
+
+    #Raised if access token is bad
+    class BadAccessToken < StandardError; end
   end
 end
