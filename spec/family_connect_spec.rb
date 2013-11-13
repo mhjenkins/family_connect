@@ -38,6 +38,19 @@ describe FamilyConnect::Client do
     family_search.access_token.should == '123'
   end
 
+  xit 'should delete an access_token' do
+
+  end
+
+  it 'should get current user' do
+    current_user = '{"users" : [{"id" : "cis.MMM.RX9", "links" : {"self" : {"href" : "https://familysearch.org/platform/users/current"}}, "contactName" : "Pete Townsend", "fullName" : "Pete Townsend", "email" : "peter@acme.org", "treeUserId" : "PXRQ-FMXT"}]}'
+    response = Typhoeus::Response.new(code: 200, body: current_user)
+    Typhoeus.stub(/familysearch.org\/platform\/users\/current/).and_return(response)
+    family_search = FamilyConnect::Client.new({:dev_key => '123', :env => 'sandbox', :redirect_uri => 'http://localhost:8080/oath'})
+    result = family_search.get_current_user 'access cod'
+    result.should == JSON.parse(current_user)
+  end
+
   describe '#template' do
 
 
