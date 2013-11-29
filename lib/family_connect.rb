@@ -67,7 +67,7 @@ module FamilyConnect
       current_user_url =  @discovery['links']["current-user"]["href"]
       params = {}
       headers = {Accept: 'application/x-fs-v1+json', Authorization: "Bearer #{access_token}"}
-      make_request(:url => current_user_url, :method => :post, :params => params, :headers => headers)
+      make_request(:url => current_user_url, :method => :get, :params => params, :headers => headers)
     end
 
     def discover
